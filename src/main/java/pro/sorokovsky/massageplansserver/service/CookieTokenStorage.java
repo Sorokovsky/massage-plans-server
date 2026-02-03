@@ -47,7 +47,7 @@ public class CookieTokenStorage implements TokenStorage {
     }
 
     @Override
-    public void removeToken(String token, HttpServletResponse response) {
+    public void removeToken(HttpServletResponse response) {
         response.addCookie(generateCookie(null, 0));
     }
 }

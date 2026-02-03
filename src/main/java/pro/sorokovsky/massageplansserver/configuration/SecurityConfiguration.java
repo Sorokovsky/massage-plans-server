@@ -8,6 +8,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import pro.sorokovsky.massageplansserver.factory.AccessTokenFactory;
+import pro.sorokovsky.massageplansserver.factory.RefreshTokenFactory;
+import pro.sorokovsky.massageplansserver.service.AuthorizationService;
+import pro.sorokovsky.massageplansserver.service.BearerTokenStorage;
+import pro.sorokovsky.massageplansserver.service.CookieTokenStorage;
+import pro.sorokovsky.massageplansserver.service.UsersService;
 
 @Configuration
 public class SecurityConfiguration {
@@ -30,5 +36,25 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthorizationService authorizationService(
+            PasswordEncoder passwordEncoder,
+            UsersService usersService,
+            BearerTokenStorage accessTokenStorage,
+            CookieTokenStorage refreshTokenStorage,
+            AccessTokenFactory accessTokenFactory,
+            RefreshTokenFactory refreshTokenFactory
+    ) {
+        return AuthorizationService
+                .builder()
+                .passwordEncoder(passwordEncoder)
+                .usersService(usersService)
+                .accessTokenStorage(accessTokenStorage)
+                .refreshTokenStorage(refreshTokenStorage)
+                .accessTokenFactory(accessTokenFactory)
+                .refreshTokenFactory(refreshTokenFactory)
+                .build();
     }
 }

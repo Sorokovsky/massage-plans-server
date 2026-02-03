@@ -32,7 +32,7 @@ public class BearerTokenStorage implements TokenStorage {
     }
 
     @Override
-    public void removeToken(String token, HttpServletResponse response) {
+    public void removeToken(HttpServletResponse response) {
         response.setHeader(HttpHeaders.AUTHORIZATION, "");
     }
 }

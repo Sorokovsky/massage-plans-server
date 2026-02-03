@@ -11,5 +11,5 @@ public interface TokenStorage {
 
     void setToken(Token token, HttpServletResponse response);
 
-    void removeToken(String token, HttpServletResponse response);
+    void removeToken(HttpServletResponse response);
 }

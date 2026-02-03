@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -93,9 +94,10 @@ public class AuthorizationController {
     })
     public ResponseEntity<GetUserPayload> register(
             @Valid @RequestBody NewUserPayload payload,
-            UriComponentsBuilder uriBuilder
+            UriComponentsBuilder uriBuilder,
+            HttpServletResponse response
     ) {
-        final var user = service.register(payload);
+        final var user = service.register(payload, response);
         return ResponseEntity
                 .created(uriBuilder.replacePath("/authorization/profile").build().toUri())
                 .body(mapper.toGet(user));
@@ -148,8 +150,8 @@ public class AuthorizationController {
                     description = "Не коректні данні"
             )
     })
-    public ResponseEntity<GetUserPayload> login(@Valid @RequestBody LoginPayload payload) {
-        return ResponseEntity.ok(mapper.toGet(service.login(payload)));
+    public ResponseEntity<GetUserPayload> login(@Valid @RequestBody LoginPayload payload, HttpServletResponse response) {
+        return ResponseEntity.ok(mapper.toGet(service.login(payload, response)));
     }
 
     @DeleteMapping("logout")
@@ -171,8 +173,8 @@ public class AuthorizationController {
                     description = "Неавторизований користувач"
             )
     })
-    public ResponseEntity<Void> logout() {
-        service.logout();
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        service.logout(response);
         return ResponseEntity.noContent().build();
     }
 }
