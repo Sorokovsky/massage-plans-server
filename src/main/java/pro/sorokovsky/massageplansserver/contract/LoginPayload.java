@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record NewUserPayload(
+public record LoginPayload(
         @NotNull(message = "{errors.email.null}")
         @NotBlank(message = "{errors.email.empty}")
         @Email(message = "{errors.email.format}")
@@ -14,18 +14,6 @@ public record NewUserPayload(
         @NotBlank(message = "{errors.password.null}")
         @NotBlank(message = "{errors.password.empty}")
         @Size(min = 6, max = 20, message = "{errors.password.size}")
-        String password,
-
-        @NotBlank(message = "{errors.first-name.null}")
-        @NotBlank(message = "{errors.first-name.empty}")
-        String firstName,
-
-        @NotBlank(message = "{errors.last-name.null}")
-        @NotBlank(message = "{errors.last-name.empty}")
-        String lastName,
-
-        @NotBlank(message = "{errors.middle-name.null}")
-        @NotBlank(message = "{errors.middle-name.empty}")
-        String middleName
+        String password
 ) {
 }
