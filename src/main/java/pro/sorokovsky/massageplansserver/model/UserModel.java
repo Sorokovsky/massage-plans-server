@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 public class UserModel extends BaseModel {
     private String email;
     private String password;
-    private String fistName;
+    private String firstName;
     private String lastName;
     private String middleName;
 }
