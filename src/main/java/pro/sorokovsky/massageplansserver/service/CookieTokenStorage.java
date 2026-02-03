@@ -32,7 +32,7 @@ public class CookieTokenStorage implements TokenStorage {
     }
 
     @Override
-    public Optional<Token> getToken(String token, HttpServletRequest request) {
+    public Optional<Token> getToken(HttpServletRequest request) {
         if (request.getCookies() == null) return Optional.empty();
         return Stream.of(request.getCookies())
                 .filter(cookie -> cookie.getName().equals(COOKIE_NAME))

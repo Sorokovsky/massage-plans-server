@@ -7,7 +7,7 @@ import pro.sorokovsky.massageplansserver.model.Token;
 import java.util.Optional;
 
 public interface TokenStorage {
-    Optional<Token> getToken(String token, HttpServletRequest request);
+    Optional<Token> getToken(HttpServletRequest request);
 
     void setToken(Token token, HttpServletResponse response);
 

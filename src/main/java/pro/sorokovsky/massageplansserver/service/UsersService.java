@@ -1,6 +1,9 @@
 package pro.sorokovsky.massageplansserver.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +20,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UsersService {
+public class UsersService implements UserDetailsService {
     private final UsersRepository repository;
     private final UserMapper mapper;
     private final PasswordEncoder passwordEncoder;
@@ -54,5 +57,11 @@ public class UsersService {
     public void deleteById(long id) {
         getById(id).orElseThrow(UserNotFoundException::new);
         repository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return getByEmail(username).orElseThrow(UserNotFoundException::new);
     }
 }

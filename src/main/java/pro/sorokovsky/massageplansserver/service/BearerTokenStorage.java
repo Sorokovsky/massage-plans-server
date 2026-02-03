@@ -20,7 +20,7 @@ public class BearerTokenStorage implements TokenStorage {
     private final TokenDeserializer deserializer;
 
     @Override
-    public Optional<Token> getToken(String token, HttpServletRequest request) {
+    public Optional<Token> getToken(HttpServletRequest request) {
         final var header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header == null || !header.startsWith(BEARER_PREFIX)) return Optional.empty();
         return deserializer.apply(header.substring(BEARER_PREFIX.length()));

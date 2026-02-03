@@ -1,15 +1,22 @@
 package pro.sorokovsky.massageplansserver.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import pro.sorokovsky.massageplansserver.configurer.JwtAuthenticationConfigurer;
 import pro.sorokovsky.massageplansserver.factory.AccessTokenFactory;
 import pro.sorokovsky.massageplansserver.factory.RefreshTokenFactory;
+import pro.sorokovsky.massageplansserver.pont.FailureAuthenticationPoint;
 import pro.sorokovsky.massageplansserver.service.AuthorizationService;
 import pro.sorokovsky.massageplansserver.service.BearerTokenStorage;
 import pro.sorokovsky.massageplansserver.service.CookieTokenStorage;
@@ -18,8 +25,12 @@ import pro.sorokovsky.massageplansserver.service.UsersService;
 @Configuration
 public class SecurityConfiguration {
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
-        return http
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            BearerTokenStorage accessTokenStorage,
+            FailureAuthenticationPoint failureAuthenticationPoint
+    ) {
+        http
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/swagger-ui/**", "/v3/**").permitAll()
                         .requestMatchers("/authorization/register", "/authorization/login").anonymous()
@@ -28,9 +39,22 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(failureAuthenticationPoint)
+                        .accessDeniedHandler((_, response, accessDeniedException) -> {
+                            final var details = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, accessDeniedException.getLocalizedMessage());
+                            final var mapper = new ObjectMapper();
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN, mapper.writeValueAsString(details));
+                        })
+                )
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
-                .build();
+                .cors(AbstractHttpConfigurer::disable);
+        http.apply(JwtAuthenticationConfigurer
+                .builder()
+                .accessTokenStorage(accessTokenStorage)
+                .failureEntryPoint(failureAuthenticationPoint)
+                .build());
+        return http.build();
     }
 
     @Bean
@@ -55,6 +79,14 @@ public class SecurityConfiguration {
                 .refreshTokenStorage(refreshTokenStorage)
                 .accessTokenFactory(accessTokenFactory)
                 .refreshTokenFactory(refreshTokenFactory)
+                .build();
+    }
+
+    @Bean
+    FailureAuthenticationPoint failureAuthenticationPoint(MessageSource messageSource) {
+        return FailureAuthenticationPoint
+                .builder()
+                .messageSource(messageSource)
                 .build();
     }
 }
