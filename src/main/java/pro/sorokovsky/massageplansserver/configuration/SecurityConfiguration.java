@@ -13,14 +13,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import pro.sorokovsky.massageplansserver.configurer.JwtAuthenticationConfigurer;
 import pro.sorokovsky.massageplansserver.factory.AccessTokenFactory;
 import pro.sorokovsky.massageplansserver.factory.RefreshTokenFactory;
 import pro.sorokovsky.massageplansserver.pont.FailureAuthenticationPoint;
-import pro.sorokovsky.massageplansserver.service.AuthorizationService;
-import pro.sorokovsky.massageplansserver.service.BearerTokenStorage;
-import pro.sorokovsky.massageplansserver.service.CookieTokenStorage;
-import pro.sorokovsky.massageplansserver.service.UsersService;
+import pro.sorokovsky.massageplansserver.service.*;
 
 @Configuration
 public class SecurityConfiguration {
@@ -83,10 +81,18 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    FailureAuthenticationPoint failureAuthenticationPoint(MessageSource messageSource) {
+    public FailureAuthenticationPoint failureAuthenticationPoint(MessageSource messageSource) {
         return FailureAuthenticationPoint
                 .builder()
                 .messageSource(messageSource)
                 .build();
+    }
+
+    @Bean
+    public PreAuthenticatedAuthenticationProvider preAuthenticatedAuthenticationProvider(UsersService usersService) {
+        final var service = JwtUserService.builder().usersService(usersService).build();
+        final var provider = new PreAuthenticatedAuthenticationProvider();
+        provider.setPreAuthenticatedUserDetailsService(service);
+        return provider;
     }
 }

@@ -1,9 +1,13 @@
 package pro.sorokovsky.massageplansserver.mapper;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import pro.sorokovsky.massageplansserver.contract.GetUserPayload;
 import pro.sorokovsky.massageplansserver.entity.UserEntity;
+import pro.sorokovsky.massageplansserver.model.Authorities;
 import pro.sorokovsky.massageplansserver.model.UserModel;
+
+import java.util.List;
 
 @Component
 public class UserMapper {
@@ -18,6 +22,7 @@ public class UserMapper {
                 .firstName(entity.getFirstName())
                 .lastName(entity.getLastName())
                 .middleName(entity.getMiddleName())
+                .authorities(entity.getAuthorities() == null ? List.of(new SimpleGrantedAuthority(Authorities.USER)) : entity.getAuthorities())
                 .build();
     }
 
@@ -32,6 +37,7 @@ public class UserMapper {
                 .firstName(model.getFirstName())
                 .lastName(model.getLastName())
                 .middleName(model.getMiddleName())
+                .authorities(model.getAuthorities() == null ? List.of(new SimpleGrantedAuthority(Authorities.USER)) : model.getAuthorities())
                 .build();
     }
 

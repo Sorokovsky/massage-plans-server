@@ -8,6 +8,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import pro.sorokovsky.massageplansserver.model.Authorities;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -31,4 +36,6 @@ public class UserEntity extends BaseEntity {
 
     @Column(nullable = false)
     private String middleName;
+
+    private List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(Authorities.USER));
 }
