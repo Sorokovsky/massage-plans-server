@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.sorokovsky.massageplansserver.model.Token;
 
-import java.util.Optional;
-
 @RequiredArgsConstructor
 @Builder
 public class JweTokenSerializer extends JwtTokenSerializer {
@@ -20,7 +18,7 @@ public class JweTokenSerializer extends JwtTokenSerializer {
     private final JWEEncrypter encrypter;
 
     @Override
-    public Optional<String> apply(Token token) {
+    public String apply(Token token) {
         try {
             final var header = new JWEHeader.Builder(algorithm, method)
                     .keyID(token.id().toString())
@@ -28,10 +26,10 @@ public class JweTokenSerializer extends JwtTokenSerializer {
             final var claims = getClaimsFromToken(token);
             final var encrypted = new EncryptedJWT(header, claims);
             encrypted.encrypt(encrypter);
-            return Optional.ofNullable(encrypted.serialize());
+            return encrypted.serialize();
         } catch (JOSEException exception) {
             LOGGER.error(exception.getMessage(), exception);
-            return Optional.empty();
+            throw new RuntimeException(exception);
         }
     }
 }

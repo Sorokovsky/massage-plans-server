@@ -11,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.sorokovsky.massageplansserver.model.Token;
 
-import java.util.Optional;
-
 @RequiredArgsConstructor
 @Builder
 public class JwsTokenSerializer extends JwtTokenSerializer {
@@ -22,7 +20,7 @@ public class JwsTokenSerializer extends JwtTokenSerializer {
     private final JWSSigner signer;
 
     @Override
-    public Optional<String> apply(Token token) {
+    public String apply(Token token) {
         try {
             final var header = new JWSHeader
                     .Builder(algorithm)
@@ -31,10 +29,10 @@ public class JwsTokenSerializer extends JwtTokenSerializer {
             final var claims = getClaimsFromToken(token);
             final var signed = new SignedJWT(header, claims);
             signed.sign(signer);
-            return Optional.ofNullable(signed.serialize());
+            return signed.serialize();
         } catch (JOSEException exception) {
             LOGGER.error(exception.getMessage(), exception);
-            return Optional.empty();
+            throw new RuntimeException(exception);
         }
     }
 }

@@ -11,10 +11,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pro.sorokovsky.massageplansserver.deserializer.JweTokenDeserializer;
 import pro.sorokovsky.massageplansserver.deserializer.JwsTokenDeserializer;
+import pro.sorokovsky.massageplansserver.factory.AccessTokenFactory;
+import pro.sorokovsky.massageplansserver.factory.DefaultAccessTokenFactory;
+import pro.sorokovsky.massageplansserver.factory.DefaultRefreshTokenFactory;
+import pro.sorokovsky.massageplansserver.factory.RefreshTokenFactory;
 import pro.sorokovsky.massageplansserver.serializer.JweTokenSerializer;
 import pro.sorokovsky.massageplansserver.serializer.JwsTokenSerializer;
+import pro.sorokovsky.massageplansserver.service.BearerTokenStorage;
+import pro.sorokovsky.massageplansserver.service.CookieTokenStorage;
 
 import java.text.ParseException;
+import java.time.Duration;
 
 @Configuration
 public class TokensConfiguration {
@@ -54,6 +61,40 @@ public class TokensConfiguration {
         return JweTokenDeserializer
                 .builder()
                 .decrypter(new DirectDecrypter(OctetSequenceKey.parse(secretKey)))
+                .build();
+    }
+
+    @Bean
+    public BearerTokenStorage bearerTokenStorage(JwsTokenSerializer serializer, JwsTokenDeserializer deserializer) {
+        return BearerTokenStorage
+                .builder()
+                .serializer(serializer)
+                .deserializer(deserializer)
+                .build();
+    }
+
+    @Bean
+    public CookieTokenStorage cookieTokenStorage(JweTokenSerializer serializer, JweTokenDeserializer deserializer) {
+        return CookieTokenStorage
+                .builder()
+                .serializer(serializer)
+                .deserializer(deserializer)
+                .build();
+    }
+
+    @Bean
+    public RefreshTokenFactory refreshTokenFactory(@Value("${tokens.refresh.lifetime}") Duration lifetime) {
+        return DefaultRefreshTokenFactory
+                .builder()
+                .lifetime(lifetime)
+                .build();
+    }
+
+    @Bean
+    public AccessTokenFactory accessTokenFactory(@Value("${tokens.access.lifetime}") Duration lifetime) {
+        return DefaultAccessTokenFactory
+                .builder()
+                .lifetime(lifetime)
                 .build();
     }
 }
