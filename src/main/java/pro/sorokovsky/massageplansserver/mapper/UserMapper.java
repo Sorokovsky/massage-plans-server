@@ -37,7 +37,7 @@ public class UserMapper {
                 .firstName(model.getFirstName())
                 .lastName(model.getLastName())
                 .middleName(model.getMiddleName())
-                .authorities(model.getAuthorities() == null ? List.of(new SimpleGrantedAuthority(Authorities.USER)) : model.getAuthorities())
+                .authorities(model.getAuthorities())
                 .build();
     }
 
